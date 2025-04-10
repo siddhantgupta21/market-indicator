@@ -8,6 +8,7 @@ import MarketDepth from "@/components/MarketDepth"
 import OrderBook from "@/components/OrderBook"
 import TabbedInterface from "@/components/TabbedInterface"
 import { tradingPairs, type TradingPair } from "@/constants/trading"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 
 // Interface for an individual order book entry
@@ -135,8 +136,8 @@ export default function Home() {
 
   const tabs = [
     { id: "orderbook", label: "Order Book" },
-    { id: "spread", label: "Spread" },
-    { id: "imbalance", label: "Imbalance" },
+    { id: "spread", label: "Spread Indicator" },
+    { id: "imbalance", label: "Imbalance Indicator" },
     { id: "depth", label: "Market Depth" },
   ]
 
@@ -160,9 +161,10 @@ export default function Home() {
       <VantaBackground>
       <div className="relative z-10 max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
         <Header selectedPair={selectedPair} onPairChange={handlePairChange} />
+        
         <div className="space-y-6">
           <TabbedInterface tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} className="mb-6" />
-          <div className="min-h-[400px] bg-black/60 backdrop-blur-sm rounded-lg p-4">{renderTabContent()}</div>
+          <div className="min-h-[400px] backdrop-blur-sm rounded-lg p-4">{renderTabContent()}</div>
         </div>
       </div>
       </VantaBackground>

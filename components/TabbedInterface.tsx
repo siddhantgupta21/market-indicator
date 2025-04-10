@@ -16,7 +16,7 @@ interface TabbedInterfaceProps {
 
 export default function TabbedInterface({ tabs, activeTab, setActiveTab, className }: TabbedInterfaceProps) {
   return (
-    <div className={cn("w-full overflow-hidden", className)}>
+    <div className={cn("w-full overflow-hidden") }>
       <div className="relative flex rounded-full bg-yellow-500 p-1">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id
