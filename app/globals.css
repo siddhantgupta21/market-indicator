@@ -4,12 +4,11 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background-color: oklch(37.4% 0.01 67.558);
 }
 
 @layer base {
   :root {
-    --background: white;
+    --background: 0 0% 0%;
     --foreground: 142 72% 29%;
     --card: 220 14% 96%;
     --card-foreground: 222.2 84% 4.9%;

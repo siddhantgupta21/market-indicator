@@ -1,5 +1,3 @@
-"use client";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Area,
@@ -8,13 +6,15 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  ReferenceLine,
 } from "recharts";
 import { Spinner } from "@/components/ui/spinner";
+import { useEffect, useMemo, useState } from "react";
 
-interface OrderBookEntry {
+export interface OrderBookEntry {
   price: number;
   amount: number;
-  total: number;
+  total?: number;
 }
 
 interface ProcessedOrderBookEntry {
@@ -23,54 +23,86 @@ interface ProcessedOrderBookEntry {
   type: "bid" | "ask";
 }
 
-interface OrderBookData {
+export interface OrderBookData {
   bids: OrderBookEntry[];
   asks: OrderBookEntry[];
 }
 
 interface MarketDepthProps {
-  loading: boolean;
+  loading?: boolean;
   orderBookData: OrderBookData;
   className?: string;
+  maxDepth?: number;
 }
 
 export default function MarketDepth({
-  loading,
+  loading = false,
   orderBookData,
   className = "",
+  maxDepth = 15,
 }: MarketDepthProps) {
-  const processMarketDepthData = (
-    bids: OrderBookEntry[],
-    asks: OrderBookEntry[]
-  ): ProcessedOrderBookEntry[] => {
-    let bidTotal = 0;
-    let askTotal = 0;
+  const [midPrice, setMidPrice] = useState<number | null>(null);
 
-    const processedBids: ProcessedOrderBookEntry[] = bids
+  // Process the data on each render
+  const processedData = useMemo(() => {
+    if (!orderBookData.bids.length || !orderBookData.asks.length) return [];
+
+    // Determine spread and midpoint price
+    const highestBid = Math.max(...orderBookData.bids.map((bid) => bid.price));
+    const lowestAsk = Math.min(...orderBookData.asks.map((ask) => ask.price));
+    const midPoint = (highestBid + lowestAsk) / 2;
+    setMidPrice(midPoint);
+
+    // Process bids (buy orders)
+    let bidTotal = 0;
+    const processedBids: ProcessedOrderBookEntry[] = orderBookData.bids
+      .slice(0, maxDepth)
       .sort((a, b) => b.price - a.price)
       .map((bid) => {
         bidTotal += bid.amount;
-        return { price: bid.price, total: bidTotal, type: "bid" };
+        return { price: bid.price, total: bidTotal, type: "bid" as const };
       })
       .reverse();
 
-    const processedAsks: ProcessedOrderBookEntry[] = asks
+    // Process asks (sell orders)
+    let askTotal = 0;
+    const processedAsks: ProcessedOrderBookEntry[] = orderBookData.asks
+      .slice(0, maxDepth)
       .sort((a, b) => a.price - b.price)
       .map((ask) => {
         askTotal += ask.amount;
-        return { price: ask.price, total: askTotal, type: "ask" };
+        return { price: ask.price, total: askTotal, type: "ask" as const };
       });
 
     return [...processedBids, ...processedAsks];
+  }, [orderBookData, maxDepth]);
+
+  // Custom tooltip content
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-[#121212] p-2 border border-[#2A2F3C] rounded shadow-lg">
+          <p className="text-[#8E9196]">Price: <span className="text-white">{Number(label).toFixed(2)}</span></p>
+          <p className={`${data.type === "bid" ? "text-[#0ecb81]" : "text-[#ea384c]"}`}>
+            {data.type === "bid" ? "Bid" : "Ask"} Total: {data.total.toFixed(5)}
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
-    <Card
-      className={`bg-gray-800 border-yellow-500 shadow-lg opacity-95 w-full ${className}`}
-    >
-      <CardHeader>
-        <CardTitle className="text-yellow-500 text-lg sm:text-xl">
+    <Card className={`bg-[#121212] border-[#2A2F3C] shadow-xl w-full ${className}`}>
+      <CardHeader className="pb-2 border-b border-[#2A2F3C]">
+        <CardTitle className="text-white text-lg font-medium flex justify-between items-center">
           Market Depth
+          {midPrice && (
+            <span className="text-sm text-white font-normal">
+              Mid Price: <span className="text-white">${midPrice.toFixed(2)}</span>
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -81,74 +113,71 @@ export default function MarketDepth({
         ) : (
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart
-              data={processMarketDepthData(
-                orderBookData.bids,
-                orderBookData.asks
-              )}
+              data={processedData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             >
+              <defs>
+                <linearGradient id="bidGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="rgba(14, 203, 129, 0.8)" />
+                  <stop offset="95%" stopColor="rgba(14, 203, 129, 0)" />
+                </linearGradient>
+                <linearGradient id="askGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="rgba(234, 56, 76, 0.8)" />
+                  <stop offset="95%" stopColor="rgba(234, 56, 76, 0)" />
+                </linearGradient>
+              </defs>
+              
               <XAxis
                 dataKey="price"
-                stroke="#22c55e"
-                domain={["dataMin", "dataMax"]}
                 type="number"
-                tickFormatter={(value: number) => value.toFixed(2)}
+                domain={["dataMin", "dataMax"]}
+                tick={{ fill: "#8E9196" }}
+                tickLine={{ stroke: "#8E9196" }}
+                axisLine={{ stroke: "#2A2F3C" }}
+                tickFormatter={(value) => value.toFixed(2)}
               />
+              
               <YAxis
-                stroke="#22c55e"
-                tickFormatter={(value: number) => value.toFixed(2)}
+                tick={{ fill: "#8E9196" }}
+                tickLine={{ stroke: "#8E9196" }}
+                axisLine={{ stroke: "#2A2F3C" }}
+                tickFormatter={(value) => value.toFixed(2)}
               />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#1f2937",
-                  border: "1px solid #22c55e",
-                  color: "#22c55e",
-                }}
-                itemStyle={{ color: "#FFD700" }}
-                formatter={(
-                  value: number,
-                  name: string,
-                  props: { payload: ProcessedOrderBookEntry }
-                ) => [
-                  value.toFixed(5),
-                  props.payload.type === "bid" ? "Bid Total" : "Ask Total",
-                ]}
-              />
+              
+              <Tooltip content={<CustomTooltip />} />
+              
+              {midPrice && (
+                <ReferenceLine
+                  x={midPrice}
+                  stroke="#9b87f5"
+                  strokeDasharray="3 3"
+                  strokeWidth={1}
+                />
+              )}
+              
               <Area
                 type="stepAfter"
                 dataKey="total"
-                stroke="#22c55e"
+                stroke="#0ecb81"
+                strokeWidth={1.5}
                 fill="url(#bidGradient)"
                 fillOpacity={0.5}
                 name="Bid"
                 isAnimationActive={false}
-                data={processMarketDepthData(
-                  orderBookData.bids,
-                  orderBookData.asks
-                ).filter((entry) => entry.type === "bid")}
+                data={processedData.filter((entry) => entry.type === "bid")}
               />
+              
               <Area
                 type="stepAfter"
                 dataKey="total"
-                stroke="#ef4444"
+                stroke="#ea384c"
+                strokeWidth={1.5}
                 fill="url(#askGradient)"
                 fillOpacity={0.5}
                 name="Ask"
                 isAnimationActive={false}
-                data={processMarketDepthData(
-                  orderBookData.bids,
-                  orderBookData.asks
-                ).filter((entry) => entry.type === "ask")}
+                data={processedData.filter((entry) => entry.type === "ask")}
               />
-              <defs>
-                <linearGradient id="bidGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="askGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                </linearGradient>
-              </defs>
             </AreaChart>
           </ResponsiveContainer>
         )}
