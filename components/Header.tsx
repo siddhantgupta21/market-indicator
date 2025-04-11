@@ -17,7 +17,9 @@ export default function Header({ selectedPair, onPairChange }: HeaderProps) {
     <header className="flex flex-col sm:flex-row justify-between items-center gap-4">
     <div className="text-center sm:text-left">
       <h1 className="text-1xl sm:text-2xl md:text-3xl font-bold text-yellow-500">
-        Orderbook and Market Indicators : {selectedPair.name}
+        Orderbook and Market Indicators : <span className="font-extrabold animate-bounce">
+          {selectedPair.name}
+        </span>
       </h1>
       {/* <p className="text-base sm:text-lg md:text-xl text-gray-400">
         Real-time cryptocurrency orderbook and market data

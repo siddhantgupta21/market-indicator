@@ -32,7 +32,8 @@ export default function OrderbookImbalance({
           <div className="w-full h-6 bg-[#1A1F2C] rounded-full mb-6 relative">
             {/* Gradient bar */}
             <div className="absolute inset-0 overflow-hidden rounded-full">
-              <div className="w-full h-full bg-gradient-to-r from-[#ea384c] via-[#ffd568] to-[#0ecb81]"></div>
+            <div className="w-full h-full bg-gradient-to-r from-[#ea384c] to-[#0ecb81]"></div>
+
             </div>
             
             {/* Indicator */}

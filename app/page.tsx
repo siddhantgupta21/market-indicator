@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import VantaBackground from "@/app/components/VantaBackground";
+import RingsBackground from "./components/RingsBackground";
+import GridLineBackground from "./components/GridLineBackground";
 import Header from "@/components/Header";
 import SpreadIndicator from "@/components/SpreadIndicator";
 import OrderbookImbalance from "@/components/OrderbookImbalance";
@@ -148,26 +150,23 @@ export default function Home() {
 
   return (
       <div className="min-h-screen">
-        <VantaBackground>
+        <GridLineBackground>
         <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
           <Header selectedPair={selectedPair} onPairChange={handlePairChange} />
-          <div className="grid grid-cols-1  gap-8">
-          <OrderBook
-              loading={loading}
-              orderBookData={orderBookData}
-            
-            />
-            <SpreadIndicator loading={loading} spreadHistory={spreadHistory} />
-            <OrderbookImbalance imbalance={imbalance} />
-            <MarketDepth
-              loading={loading}
-              orderBookData={orderBookData}
-              
-            />
-           
+          <div className="grid grid-cols-1 gap-8">
+            <OrderBook loading={loading} orderBookData={orderBookData} />
+
+            {/* Side-by-side layout for OrderbookImbalance and SpreadIndicator */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <OrderbookImbalance imbalance={imbalance} />
+              <SpreadIndicator loading={loading} spreadHistory={spreadHistory} />
+            </div>
+
+            <MarketDepth loading={loading} orderBookData={orderBookData} />
           </div>
+
         </div>
-        </VantaBackground>
+        </GridLineBackground>
       </div>
   );
 }
