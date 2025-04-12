@@ -18,12 +18,14 @@ interface OrderBookProps {
   loading: boolean;
   orderBookData: OrderBookData;
   className?: string;
+  baseAsset: string;
 }
 
 export default function OrderBook({
   loading,
   orderBookData,
   className = "",
+  baseAsset,
 }: OrderBookProps) {
   const [precision, setPrecision] = useState(2);
   const prevPricesRef = useRef<Record<string, number>>({});
@@ -99,7 +101,7 @@ export default function OrderBook({
             <div className="w-1/2 border-r border-[#2A2F3C]">
               <div className="grid grid-cols-4 text-xs text-[#8E9196] p-2 border-b border-[#2A2F3C]">
                 <div className="text-left">Price (USDT)</div>
-                <div className="text-right">Amount (BTC)</div>
+                <div className="text-right">Amount ({baseAsset})</div>
                 <div className="text-right">Total (USDT)</div>
                 <div className="text-right">Sum (USDT)</div>
               </div>
@@ -144,7 +146,7 @@ export default function OrderBook({
             <div className="w-1/2">
               <div className="grid grid-cols-4 text-xs text-[#8E9196] p-2 border-b border-[#2A2F3C]">
                 <div className="text-left">Price (USDT)</div>
-                <div className="text-right">Amount (BTC)</div>
+                <div className="text-right">Amount ({baseAsset})</div>
                 <div className="text-right">Total (USDT)</div>
                 <div className="text-right">Sum (USDT)</div>
               </div>

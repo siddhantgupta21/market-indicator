@@ -38,6 +38,7 @@ export default function Home() {
   const [selectedPair, setSelectedPair] = useState<TradingPair>(
     tradingPairs[0]
   );
+  const baseAsset = selectedPair.symbol.replace(/USDT$/, "");
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -149,7 +150,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto space-y-8 px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
           <Header selectedPair={selectedPair} onPairChange={handlePairChange} />
           <div className="grid grid-cols-1 gap-8">
-            <OrderBook loading={loading} orderBookData={orderBookData} />
+                      <OrderBook 
+              loading={loading} 
+              orderBookData={orderBookData} 
+              baseAsset={baseAsset} 
+            />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <SpreadIndicator loading={loading} spreadHistory={spreadHistory} />
