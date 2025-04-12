@@ -1,9 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import VantaBackground from "@/app/components/VantaBackground";
-import RingsBackground from "./components/RingsBackground";
-import GridLineBackground from "./components/GridLineBackground";
+import GridLineBackground from "@/components/GridLineBackground";
 import Header from "@/components/Header";
 import SpreadIndicator from "@/components/SpreadIndicator";
 import OrderbookImbalance from "@/components/OrderbookImbalance";
@@ -11,21 +9,20 @@ import MarketDepth from "@/components/MarketDepth";
 import OrderBook from "@/components/OrderBook";
 import { tradingPairs, TradingPair } from "@/constants/trading";
 
-// Interface for an individual order book entry
+
 interface OrderBookEntry {
   price: number;
   amount: number;
-  total?: number; // Marking as optional for entries before calculation
-  change?: number; // Marking as optional for entries before calculation
+  total?: number; 
+  change?: number; 
 }
 
-// Interface for the order book data
+
 interface OrderBookData {
   bids: OrderBookEntry[];
   asks: OrderBookEntry[];
 }
 
-// Interface for spread history entry
 interface SpreadHistoryEntry {
   time: number;
   spread: number;
@@ -45,7 +42,6 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Close existing WebSocket if any
     if (ws) {
       ws.close();
     }
@@ -133,7 +129,6 @@ export default function Home() {
     };
 
     return () => {
-      // Close WebSocket on cleanup
       if (newWs) {
         newWs.close();
       }
@@ -156,10 +151,10 @@ export default function Home() {
           <div className="grid grid-cols-1 gap-8">
             <OrderBook loading={loading} orderBookData={orderBookData} />
 
-            {/* Side-by-side layout for OrderbookImbalance and SpreadIndicator */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <OrderbookImbalance imbalance={imbalance} />
               <SpreadIndicator loading={loading} spreadHistory={spreadHistory} />
+              <OrderbookImbalance imbalance={imbalance} />
+            
             </div>
 
             <MarketDepth loading={loading} orderBookData={orderBookData} />
